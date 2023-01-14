@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cctype> // for ctype functions like 'isalpha', 'isdigit' etc.
 #include <stdexcept> // for exceptions
+
 using namespace std;
 
 namespace {
