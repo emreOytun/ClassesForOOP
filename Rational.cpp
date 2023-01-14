@@ -49,22 +49,22 @@ public :
 	void setDenominator(int _denom);	// Denominator 0 olmamali !!!!!!!!
 	void setRational(int _num, int _denom);
 	
-	int getNumerator() const;
-	int getDenominator() const;
+	int getNumerator() const noexcept;
+	int getDenominator() const noexcept;
 	
 	void simplify();
 	
 	friend ostream& operator<<(ostream& ostream, const Rational& rational);
 	
-	bool operator==(const Rational& rational) const;
-	bool operator!=(const Rational& rational) const;
+	bool operator==(const Rational& rational) const noexcept;
+	bool operator!=(const Rational& rational) const noexcept;
 	
-	Rational& operator++();
-	const Rational operator++(int);
+	Rational& operator++() noexcept;
+	const Rational operator++(int) noexcept;
 	
-	const Rational operator+(const Rational& oth) const;
-	const Rational operator-(const Rational& oth) const;
-	const Rational operator*(const Rational& oth) const;
+	const Rational operator+(const Rational& oth) const noexcept;
+	const Rational operator-(const Rational& oth) const noexcept;
+	const Rational operator*(const Rational& oth) const noexcept;
 	const Rational operator/(const Rational& oth) const;	// Bolen 0 olmamali !!!!!!
 	
 	friend const Rational operator-(const Rational& oth);
@@ -116,8 +116,8 @@ void Rational::setRational(int _num, int _denom) {
 	setDenominator(_denom);	// Setdenominator kullanilmali !!!!!!
 }
 
-int Rational::getNumerator() const { return num; }
-int Rational::getDenominator() const { return denom; }
+int Rational::getNumerator() const noexcept { return num; }
+int Rational::getDenominator() const noexcept { return denom; }
 
 void Rational::simplify() {
 	int gcd_ = gcd(num, denom);
@@ -130,28 +130,28 @@ ostream& operator<<(ostream& ostream, const Rational& rational) {
 	return ostream;
 }
 
-bool Rational::operator==(const Rational& oth) const{
+bool Rational::operator==(const Rational& oth) const noexcept {
 	if (this == &oth) return true;
 	if (num == oth.num && denom == oth.denom) return true;
 	return false;
 }
 
-bool Rational::operator!=(const Rational& oth) const{
+bool Rational::operator!=(const Rational& oth) const noexcept{
 	return !(*this == oth);
 }
 
-Rational& Rational::operator++() {
+Rational& Rational::operator++() noexcept {
 	num += denom;
 	return *this;
 }
 
-const Rational Rational::operator++(int) {
+const Rational Rational::operator++(int) noexcept {
 	Rational copy = *this;
 	++(*this);
 	return copy;
 }
 
-const Rational Rational::operator+(const Rational& oth) const {
+const Rational Rational::operator+(const Rational& oth) const noexcept {
 	Rational res;
 	if (denom == oth.denom) {
 		res.setRational(num+oth.num, denom);
@@ -165,11 +165,11 @@ const Rational Rational::operator+(const Rational& oth) const {
 	return res;
 } 
 
-const Rational Rational::operator-(const Rational& oth) const {
+const Rational Rational::operator-(const Rational& oth) const noexcept {
 	return (*this + Rational(-oth.num, oth.denom));
 }
 
-const Rational Rational::operator*(const Rational& oth) const {
+const Rational Rational::operator*(const Rational& oth) const noexcept {
 	return Rational(num*oth.num, denom*oth.denom);
 }
 

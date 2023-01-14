@@ -1,57 +1,63 @@
 #include <iostream>
-#include <cctype>	// isdigit, isalpha fonksiyonlari icin !!!!!!
+#include <cctype> // for ctype functions like 'isalpha', 'isdigit' etc.
+#include <stdexcept> // for exceptions
 using namespace std;
 
-
 namespace {
-	int digitToInt(char c) {
-		return (int(c) - int('0'));
+	
+	int digitToInt(char ch) {
+		return (int) ch - (int) '0';
 	}
 	
-	void readMinute(istream& istream, int &minute) {
-		char c1, c2;
-		istream >> c1 >> c2;
-		
-		if (! (isdigit(c1) && isdigit(c2)) ) {	// Ikisi de digit mi diye inputlari kontrol et !!
-			cerr << "ERROR : Illegal input in readMinute\n";
-			exit(-1);
-		}
+	int readHour(istream& istream, int& hour) {
+		char ch1, ch2;
+		istream >> ch1 >> ch2;
 	
-		minute = digitToInt(c1)*10 + digitToInt(c2);
-		
-		if (minute < 0 || minute > 59) {	// Minute icin kontrol et !!
-			cerr << "ERROR : Illegal input in readMinute\n";
-			exit(-1);
-		}
-	}
+		/* Input can be in formats of 13:13 or 1:12.  */	
+		if (! (isdigit(ch1) && (isdigit(ch2) || ch2 == ':')) ) {
+			throw runtime_error("Invalid time!");
+		} 
 	
-	void readHour(istream& istream, int& hour) {
-		char c1, c2;
-		istream >> c1 >> c2;
-		
-		/* Input kontrolu yap : 10:02 veya 1:02 girilmis olabilir.   */
-		if (! (isdigit(c1) && (isdigit(c2) || c2 == ':')) ) {
-			cerr << "Invalid argument for readHour.\n";
-			exit(-1);
-		}
-		
-		if (c2 == ':') {
-			hour = digitToInt(c1);
-		}
-		else {
-			hour = digitToInt(c1)*10 + digitToInt(c2);
-			
-			istream >> c2;	// Iki noktayi'da okumam lazim bunu oku ve ':' olup olmadigini kontrol et !!!
-			if (c2 != ':') {
-				cerr << "Invalid argument for readHour.\n";
-				exit(-1);
+		if (isdigit(ch2)) {
+				
+			/* If input is in format of 13:13, then we can be able to read ':' */
+			char ch3;
+			istream >> ch3;
+			if (ch3 != ':') {
+				throw runtime_error("Invalid time!");
 			}
+		
+			hour = digitToInt(ch1) * 10 + digitToInt(ch2);
+			if (hour == 24) hour = 0;
 		}
 		
-		if (hour == 24) hour = 0; // saat 24 ise 0'a set et. !!!
-		if (hour < 0 || hour > 23) {
-			cerr << "Invalid argument for readHour.\n";
+		/* If input is in format of 2:23 */
+		else {
+			hour = digitToInt(ch1);
 		}
+		
+		if (hour < 0 || hour > 23) {
+				throw runtime_error("Invalid time!");
+		}
+		
+		return hour;
+	}
+	
+	int readMinute(istream& istream, int& minute) {
+		char ch1, ch2;
+		istream >> ch1 >> ch2;
+		
+		/* Check if both of them are digits. */
+		if (! (isdigit(ch1) && isdigit(ch2))) {
+			throw runtime_error("Invalid time!");
+		}
+		
+		minute = digitToInt(ch1) * 10 + digitToInt(ch2);
+		if (minute < 0 || minute > 59) {
+			throw runtime_error("Invalid time!");
+		}
+	
+		return minute;
 	}
 	
 }
@@ -62,16 +68,18 @@ namespace GTUTime {
 	class DigitalTime {
 		
 	public :
-		DigitalTime(int hour_, int minute_);
 		DigitalTime();
+		DigitalTime(int hour_, int minute_);
 		
-		int getHour() const;
-		int getMinute() const;
+		void setTime(int hour_, int minute_);
+		void setHour(int hour_);
+		void setMinute(int minute_);
 		
-		void advance(int minutesAdded);
+		int getHour() const noexcept;
+		int getMinute() const noexcept;
+		
+		void advance(int hoursAdded);
 		void advance(int hoursAdded, int minutesAdded);
-		
-		bool operator==(const DigitalTime& oth) const;
 		
 		friend ostream& operator<<(ostream& ostream, const DigitalTime& time);
 		friend istream& operator>>(istream& istream, DigitalTime& time);
@@ -81,57 +89,99 @@ namespace GTUTime {
 		int minute;
 		
 	};
+		
+}
+
+namespace GTUTime {
 	
 	DigitalTime::DigitalTime() : hour(0), minute(0) {
+		
 	}
 	
 	DigitalTime::DigitalTime(int hour_, int minute_) {
-		if (! (0<=hour_ && hour_<=24 && 0<=minute_ && minute_<=59)) {
-			cerr << "Invalid argument.\n";
-			exit(-1);
+		setTime(hour_, minute_);
+	}
+	
+	void DigitalTime::setTime(int hour_, int minute_) {
+		if (hour_ < 0 || hour_ > 24 || minute_ < 0 || minute_ > 59) {
+			throw runtime_error("Invalid arguments!");
 		}
-		if (hour_ == 24) hour = 0;	// Saat 24 olarak verilebilir biz bunu 0 olarak set ederiz. !!!
-		else hour = hour_;
+		
+		if (hour_ == 24) hour_ = 0;
+		hour = hour_;
+		minute = minute_;
+	}
+
+	void DigitalTime::setHour(int hour_) {
+		if (hour_ < 0 || hour_ > 24) {
+			throw runtime_error("Invalid arguments!");
+		}
+		
+		if (hour_ == 24) hour = hour_;
+	}
+	
+	void DigitalTime::setMinute(int minute_) {
+		if (minute_ < 0 || minute_ > 59) {
+			throw runtime_error("Invalid arguments!");
+		}
+		
 		minute = minute_;
 	}
 	
-	int DigitalTime::getHour() const { return hour; }
-	int DigitalTime::getMinute() const { return minute; }
+	int DigitalTime::getHour() const noexcept {
+		return hour;
+	}
 	
-	void DigitalTime::advance(int minutesAdded) {
-		int totalMinutes = minute + minutesAdded;
-		
-		minute = totalMinutes % 60;
-		hour += totalMinutes / 60;
-		hour = hour % 24;
+	int DigitalTime::getMinute() const noexcept{
+		return minute;
+	}
+	
+	void DigitalTime::advance(int hoursAdded) {
+		hour += hoursAdded;
+		if (hour >= 24) {
+			hour %= 24;
+		}
 	}
 	
 	void DigitalTime::advance(int hoursAdded, int minutesAdded) {
-		advance(minutesAdded);
-		hour = (hour + hoursAdded) % 24;
+		advance(hoursAdded);
+		minute += minutesAdded;
+		if (minute >= 60) {
+			hour += minute / 60;
+			minute %= 60;
+		}
 	}
 	
 	ostream& operator<<(ostream& ostream, const DigitalTime& time) {
 		ostream << time.hour << ":";
-		if (time.minute < 10) ostream << "0";
-		ostream << time.minute;
+		if (time.minute < 10) ostream << "0" << time.minute;
+		else ostream << time.minute;
+		
 		return ostream;
 	}
 	
 	istream& operator>>(istream& istream, DigitalTime& time) {
 		readHour(istream, time.hour);
-		readMinute(istream, time.minute);
+		readMinute(istream, time.minute);	
 	}
 	
 }
 
-using namespace GTUTime; 	// NAMESPACE'I MAINDEN ONCE KULLANMAYI UNUTMA !!!!!!!!
+/* Testing */
+using namespace GTUTime;
+
 int main () {
-	DigitalTime time;
-	cin >> time;
+	DigitalTime time1(13, 23);	
+	cout << time1 << "\n"; // 13:23
 	
-	time.advance(30);
-	cout << time;
+	time1.advance(3);
+	cout << time1 << "\n"; // 16:23
 	
-	return 0;
+	
+	DigitalTime time2;
+	cout << time2 << "\n"; // 0:00
+	
+	cin >> time2;
+	cout << time2 << "\n";
+	
 }
