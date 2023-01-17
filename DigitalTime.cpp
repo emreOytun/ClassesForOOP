@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cctype> // for ctype functions like 'isalpha', 'isdigit' etc.
 #include <stdexcept> // for exceptions
-
 using namespace std;
 
 namespace {
@@ -176,7 +175,7 @@ int main () {
 	cout << time1 << "\n"; // 13:23
 	
 	time1.advance(3);
-	cout << time1 << "\n"; // 16:23
+	cout << time1 << "\n"; // 16:23q
 	
 	
 	DigitalTime time2;

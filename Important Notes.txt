@@ -1,9 +1,0 @@
-1) Put 'const' keyword in the function if it is a const function which guarantees that it will not change any members !!
-2) Do not forget to put 'const' while doing operator overloading.
-= -> non-const	
-++, --		non-const	const obje&(pre-incrememnt), const obje(post) dondurur.
-==, != 	  	const		boolean dondurur
->, >=, <, <=	const		boolean dondurur
-+, -, *, / 	const		const obje dondurur
-<<, >>		friend		boolean
-!, - 		friend		const obje dondurur.

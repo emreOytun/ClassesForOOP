@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-// UNNAMED NAMESPACE : It can be seen only from this .cpp file.
+// UNNAMED NAMESPACE : SADECE BU CPP DOSYASI ICINDEN GORULEBILEN, GENELLIKLE SADECE BU DOSYADA KULLANACAGIMIZ HELPER FONKSIYONLARI ICIN KULLANILIR.
 namespace {
 	int dollarsPart(double amount);
 	int centsPart(double amount);
@@ -13,7 +13,7 @@ namespace {
 		return static_cast<int>(amount);
 	}
 	
-	int centsPart(double amount) {	// Converts to cents first, then get the cents part.
+	int centsPart(double amount) {	// Once kr'a cevir, ordan kurus kismini bulabilirsin !!!
 		int totalCents = amount*100;
 		int cents = totalCents % 100;
 		return cents;
@@ -31,7 +31,7 @@ namespace {
 	}
 }
 
-namespace GTU {
+namespace GTU {	// HEM HEADER'DA HEM CPP DOSYASINDA KODUNU NAMESPACE ICINE YAZACAKSIN.
 
 	class BankAccount {
 		
@@ -57,12 +57,13 @@ namespace GTU {
 		void setBalance(int dollars, int cents);
 		void setRate(double newRate);
 		
-		bool operator==(const BankAccount& oth) const; // If operator does not change any members, then put 'const' !!
+		bool operator==(const BankAccount& oth) const;	// ONEMLI: Operator nesnenin datasini degistirmiyorsa const olarak isaretle !!!!!
 		bool operator!=(const BankAccount& oth) const;
 		bool operator>(const BankAccount& oth) const;
-		const BankAccount operator+(const BankAccount& oth) const;
 		
-		friend const BankAccount operator!(const BankAccount& oth);	// They must be global since the object will be at the right part of the operator !!
+		const BankAccount operator+(const BankAccount& oth) const; // ONEMLI: Operatoru const olarak isaretlemen lazim ki const obje icinde calisabilsin veya concate toplama islemi yapabilsin !!!
+		
+		friend const BankAccount operator!(const BankAccount& oth);	// Burada nesne sag tarafa gelecegi icin global operatorler olmali !!!!
 		friend const BankAccount operator-(const BankAccount& oth); 
 		
 		friend ostream& operator<<(ostream& ostream, const BankAccount& acc);
@@ -76,8 +77,9 @@ namespace GTU {
 	
 	};
 	
+	/* Constructorlarda DIKKAT : RATE NEGATIF OLAMAZ, SETTER'DA KONTROL EDILMELI VE SETTER KULLANILMALI !!! */
 	BankAccount::BankAccount() : accountDollars(0), accountCents(0) {
-		setRate(rate);	// setRate is used since we should check the validity of rate. !!
+		setRate(rate);
 	}
 	
 	BankAccount::BankAccount(double amount, double rate) : accountDollars(dollarsPart(amount)), accountCents(centsPart(amount)) {
@@ -102,7 +104,7 @@ namespace GTU {
 		accountCents = cents;
 	}
 	
-	/* Check if rate is negative first, then assign !! */
+	/* Rate'in negatif olmamasi gerekiyor, CHECK ET !! */
 	void BankAccount::setRate(double newRate) {
 		if (newRate < 0) {
 			cerr << "ERROR Rate is negative.\n";
@@ -177,7 +179,7 @@ namespace GTU {
 		return false;
 	}
 	
-	const BankAccount BankAccount::operator+(const BankAccount& oth) const {
+	const BankAccount BankAccount::operator+(const BankAccount& oth) const {	// Once kuruslar toplamini bul, ordan dolar ve cent kismini bulursun !!!
 		int firstCents = accountDollars*100 + accountCents;
 		int secondCents = oth.accountDollars*100 + oth.accountCents;
 		int totalCents = firstCents + secondCents;
@@ -208,7 +210,7 @@ namespace GTU {
 
 }
 
-using namespace GTU;
+using namespace GTU;	// EGER NAMESPACE ICINE YAZDIYSAN MAIN'DE BUNU KULLANICAKSIN !!
 int main () {
 	const BankAccount acc1(1.50, 0.21);
 	acc1.output();

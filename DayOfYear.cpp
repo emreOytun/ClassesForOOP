@@ -10,8 +10,8 @@ class DayOfYear {
 		~DayOfYear();
 		
 		DayOfYear operator=(const DayOfYear& oth);
-		bool operator==(const DayOfYear& oth);
-		bool operator!=(const DayOfYear& oth);
+		bool operator==(const DayOfYear& oth) const;
+		bool operator!=(const DayOfYear& oth) const;
 		DayOfYear& operator++();
 		DayOfYear operator++(int);
 		DayOfYear& operator--();
@@ -31,12 +31,12 @@ class DayOfYear {
 };
 
 int DayOfYear::activeObjects = 0;
-const int DayOfYear::dayNumOfMonths[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 30};
+const int DayOfYear::dayNumOfMonths[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 bool DayOfYear::isValidDate(int day, int month) {
 	bool result = true;
 	if (!(1<=month && 12<=month)) result = false;
-	else if (day<=0 || day>dayNumOfMonths[month-1]) result = false;
+	else if (day<=0 || day>=dayNumOfMonths[month-1]) result = false;
 	
 	return result;
 }
@@ -139,7 +139,7 @@ int DayOfYear::activeObjectsNum() {
 class DayOfYearSet {
 	
 public :	
-	/*  To keep number of objects alive, constructor and destructor must be written. */
+	/* Alive obje sayisini tutmak icin default constructor ve destructor'da muhakkak yazilmak zorunda !!!! */
 	DayOfYearSet();	
 	DayOfYearSet(vector<DayOfYear> list);
 	DayOfYearSet(const DayOfYearSet& oth);
@@ -165,7 +165,7 @@ public :
 	static int numOfAliveObjects(); 
 	
 private :
-	DayOfYear* data;	// If class has pointer in its data, then BIG THREE is needed : 1) Copy constructor 2) Assignment(=) operator 3) Destructor
+	DayOfYear* data;	// Pointer'in varsa BIG THREE YAZILMAK ZORUNDA : 1) Copy constructor 2) Assignment(=) operator 3) Destructor
 	int len;
 	int capacity;
 	static int aliveObjects;
@@ -198,11 +198,12 @@ DayOfYearSet::DayOfYearSet(const DayOfYearSet& oth) {
 
 DayOfYearSet::~DayOfYearSet() {
 	delete [] data;
-	data = nullptr;	// It's a good practice to set data to nullptr after deleting it.
+	data = nullptr;	// DELETE ETTIKTEN SONRA DATA = NULLPTR OLARAK SET ET !!!!
 	--aliveObjects;
 }
 
 void DayOfYearSet::add(const DayOfYear& newDate) {
+	/* SET YAZDIGIN ICIN EKLEME YAPARKEN ELEMANIN ONCEDEN OLUP OLMADIGINI KONTROL ET !!!! */
 	bool canAdded = true;
 	for (int i = 0; i < len && canAdded; ++i) {
 		if (data[i] == newDate) canAdded = false;
@@ -223,23 +224,24 @@ void DayOfYearSet::adjustCapacity(int newCapacity) {
 	for (int i = 0; i < len; ++i) {
 		newData[i] = data[i];
 	}
-	if (data != nullptr) delete [] data;
+	if (data != nullptr) delete [] data;	// DELETE ETMEDEN ONCE NULLPTR OLUP OLMADIGINI KONTROL ET !!!
 	data = newData;
 	capacity = newCapacity;
 }
 
 void DayOfYearSet::remove(int idx) {
-	/* Check idx */
+	/* Index'i kontrol ediyorum. */
 	if (idx<0 || idx>=len) {
 		cerr << "ERROR: Invalid index argument.";
 		exit(-1);
 	}
 	
-	/* Shift data */
+	/* Kaydirma yapiyorum. */
 	for (int i = idx+1; i < len; ++i) {
 		data[i-1] = data[i];
 	}
 	
+	/* Len'i azaltip capacity'i dusurmem gerkeip gerekmedigini kontrol ediyorum. */
 	--len;
 	if (len%10 == 0) {
 		adjustCapacity(len);
@@ -267,6 +269,7 @@ bool DayOfYearSet::operator!=(const DayOfYearSet& oth) {
 }
 
 const DayOfYear& DayOfYearSet::operator[](int idx) const {
+	/* Index kontrolu yap !! */
 	if (idx<0 || idx>=len) exit(-1);
 	return data[idx];
 }
